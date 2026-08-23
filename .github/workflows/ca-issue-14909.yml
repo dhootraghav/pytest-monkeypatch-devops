@@ -13,6 +13,10 @@ jobs:
   verify:
     name: Python ${{ matrix.python }}
     runs-on: ubuntu-latest
+    env:
+      # This academic fork has no release tags, while pytest derives its
+      # development version from Git tags. Keep pytest above its own minversion.
+      SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PYTEST: "9.2.0"
     strategy:
       fail-fast: false
       matrix:

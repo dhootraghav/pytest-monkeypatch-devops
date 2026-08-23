@@ -30,6 +30,7 @@ Requires Python 3.10 or newer.
 
 ```bash
 python -m venv .venv
+export SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PYTEST=9.2.0
 .venv/bin/python -m pip install -e .
 .venv/bin/python -m pytest testing/test_monkeypatch.py -q
 ```
