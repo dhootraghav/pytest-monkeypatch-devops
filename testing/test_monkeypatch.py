@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import sys
 import textwrap
+from types import MappingProxyType
 import warnings
 
 from _pytest.monkeypatch import MonkeyPatch
@@ -124,6 +125,17 @@ def test_delattr() -> None:
     monkeypatch.undo()
     assert A.x == 1
 
+
+def test_delattr_failure_does_not_corrupt_undo(monkeypatch: MonkeyPatch) -> None:
+    class A:
+        __slots__ = ()
+        x = 1
+
+    target = A()
+    with pytest.raises(AttributeError):
+        monkeypatch.delattr(target, "x")
+    assert target.x == 1
+
     monkeypatch = MonkeyPatch()
     monkeypatch.delattr(A, "x")
     with pytest.raises(AttributeError):
@@ -162,6 +174,13 @@ def test_setitem_deleted_meanwhile() -> None:
     assert not d
 
 
+def test_setitem_failure_does_not_corrupt_undo(monkeypatch: MonkeyPatch) -> None:
+    mapping = MappingProxyType({"x": 1})
+    with pytest.raises(TypeError):
+        monkeypatch.setitem(mapping, "x", 2)
+    assert mapping["x"] == 1
+
+
 @pytest.mark.parametrize("before", [True, False])
 def test_setenv_deleted_meanwhile(before: bool) -> None:
     key = "qwpeoip123"
@@ -194,6 +213,13 @@ def test_delitem() -> None:
     assert d["x"] == 1500
     monkeypatch.undo()
     assert d == {"hello": "world", "x": 1}
+
+
+def test_delitem_failure_does_not_corrupt_undo(monkeypatch: MonkeyPatch) -> None:
+    mapping = MappingProxyType({"x": 1})
+    with pytest.raises(TypeError):
+        monkeypatch.delitem(mapping, "x")
+    assert mapping["x"] == 1
 
 
 def test_setenv() -> None:
